@@ -9,7 +9,8 @@ from ._marching_cubes_classic import _marching_cubes_classic
 
 def marching_cubes(volume, level=None, *, spacing=(1., 1., 1.),
                    gradient_direction='descent', step_size=1,
-                   allow_degenerate=True, method='lewiner', mask=None):
+                   allow_degenerate=True, method='lewiner', mask=None,
+                   single_mesh=False):
     """Marching cubes algorithm to find surfaces in 3d volumetric data.
 
     In contrast with Lorensen et al. approach [2]_, Lewiner et
@@ -133,12 +134,12 @@ def marching_cubes(volume, level=None, *, spacing=(1., 1., 1.),
         return _marching_cubes_lewiner(volume, level, spacing,
                                        gradient_direction, step_size,
                                        allow_degenerate, use_classic=False,
-                                       mask=mask)
+                                       mask=mask, single_mesh=single_mesh)
     elif method == 'lorensen':
         return _marching_cubes_lewiner(volume, level, spacing,
                                        gradient_direction, step_size,
                                        allow_degenerate, use_classic=True,
-                                       mask=mask)
+                                       mask=mask, single_mesh=single_mesh)
     elif method == '_lorensen':
         if mask is not None:
             raise NotImplementedError(
@@ -184,7 +185,8 @@ def _marching_cubes_lewiner(volume, level, spacing, gradient_direction,
         raise ValueError('step_size must be at least one.')
     # use_classic
     use_classic = bool(use_classic)
-
+    # extact single mesh
+    single_mesh = bool(single_mesh)
     # Get LutProvider class (reuse if possible)
     L = _get_mc_luts()
 
@@ -196,7 +198,8 @@ def _marching_cubes_lewiner(volume, level, spacing, gradient_direction,
     # Apply algorithm
     func = _marching_cubes_lewiner_cy.marching_cubes
     vertices, faces, normals, values = func(volume, level, L,
-                                            step_size, use_classic, mask)
+                                            step_size, use_classic, mask, 
+                                            single_mesh)
 
     if not len(vertices):
         raise RuntimeError('No surface found at the given iso value.')
