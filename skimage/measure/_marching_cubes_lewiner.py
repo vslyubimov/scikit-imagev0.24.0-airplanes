@@ -16,6 +16,7 @@ def marching_cubes(
     allow_degenerate=True,
     method='lewiner',
     mask=None,
+    single_mesh=False,
 ):
     """Marching cubes algorithm to find surfaces in 3d volumetric data.
 
@@ -144,7 +145,8 @@ def marching_cubes(
         step_size,
         allow_degenerate,
         use_classic=use_classic,
-        mask=mask,
+        mask=mask, 
+        single_mesh=single_mesh,
     )
 
 
@@ -157,6 +159,7 @@ def _marching_cubes_lewiner(
     allow_degenerate,
     use_classic,
     mask,
+    single_mesh,
 ):
     """Lewiner et al. algorithm for marching cubes. See
     marching_cubes_lewiner for documentation.
@@ -187,7 +190,8 @@ def _marching_cubes_lewiner(
         raise ValueError('step_size must be at least one.')
     # use_classic
     use_classic = bool(use_classic)
-
+    # extact single mesh
+    single_mesh = bool(single_mesh)
     # Get LutProvider class (reuse if possible)
     L = _get_mc_luts()
 
@@ -199,7 +203,7 @@ def _marching_cubes_lewiner(
     # Apply algorithm
     func = _marching_cubes_lewiner_cy.marching_cubes
     vertices, faces, normals, values = func(
-        volume, level, L, step_size, use_classic, mask
+        volume, level, L, step_size, use_classic, mask, single_mesh
     )
 
     if not len(vertices):

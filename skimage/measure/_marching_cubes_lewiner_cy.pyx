@@ -934,7 +934,8 @@ cdef class LutProvider:
 
 def marching_cubes(cnp.float32_t[:, :, :] im not None, cnp.float64_t isovalue,
                    LutProvider luts, int st=1, int classic=0,
-                   cnp.ndarray[cnp.npy_bool, ndim=3, cast=True] mask=None):
+                   cnp.ndarray[cnp.npy_bool, ndim=3, cast=True] mask=None, 
+                   int single_mesh=0)):
     """ marching_cubes(im, cnp.float64_t isovalue, LutProvider luts, int st=1, int classic=0)
     Main entry to apply marching cubes.
 
@@ -982,10 +983,18 @@ def marching_cubes(cnp.float32_t[:, :, :] im not None, cnp.float64_t isovalue,
                 x_st = x + st
                 if no_mask or mask[z_st, y_st, x_st]:
                     # Initialize cell
-                    cell.set_cube(isovalue, x, y, z, st,
-                        im[z   ,y, x], im[z   ,y, x_st], im[z   ,y_st, x_st], im[z   ,y_st, x],
-                        im[z_st,y, x], im[z_st,y, x_st], im[z_st,y_st, x_st], im[z_st,y_st, x] )
+                    all_valid = \
+                        (im[z ,y, x] > -1)  & (im[z ,y, x_st] > -1)  & (im[z,y_st, x_st] > -1)  & \
+                        (im[z ,y_st, x] > -1)  & (im[z_st ,y, x] > -1)  & (im[z_st ,y,x_st] > -1) \
+                        & (im[z_st ,y_st, x_st] > -1)  & (im[z_st ,y_st,x] > -1)
 
+                    if single_mesh and not all_valid:
+                        continue
+                    else:
+                        cell.set_cube(isovalue, x, y, z, st,
+                            im[z   ,y, x], im[z   ,y, x_st], im[z   ,y_st, x_st], im[z   ,y_st, x],
+                            im[z_st,y, x], im[z_st,y, x_st], im[z_st,y_st, x_st], im[z_st,y_st, x])
+                            
                     # Do classic!
                     if classic:
                         # Determine number of vertices
