@@ -154,7 +154,8 @@ def marching_cubes(volume, level=None, *, spacing=(1., 1., 1.),
 
 
 def _marching_cubes_lewiner(volume, level, spacing, gradient_direction,
-                            step_size, allow_degenerate, use_classic, mask):
+                            step_size, allow_degenerate, use_classic, mask,
+                            single_mesh):
     """Lewiner et al. algorithm for marching cubes. See
     marching_cubes_lewiner for documentation.
 
