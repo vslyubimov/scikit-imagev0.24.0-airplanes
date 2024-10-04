@@ -16,7 +16,7 @@ def marching_cubes(
     allow_degenerate=True,
     method='lewiner',
     mask=None,
-    single_mesh=False,
+    single_mesh=False
 ):
     """Marching cubes algorithm to find surfaces in 3d volumetric data.
 
